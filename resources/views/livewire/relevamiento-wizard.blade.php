@@ -372,7 +372,7 @@ new #[Layout('layouts.app')] class extends Component {
             'codigo_inventario' => '',
             'tipo' => 'desktop',
             'estado' => 'activo',
-            'tipo_red' => 'dhcp',
+            'tipo_red' => 'ip_fija',
             'ip' => '',
             'mac' => '',
             'so_tipo' => '',
@@ -413,6 +413,13 @@ new #[Layout('layouts.app')] class extends Component {
         ];
     }
 
+    public function updatedActivoFormMac($value)
+    {
+        $mac = preg_replace('/[^A-Fa-f0-9]/', '', $value);
+        $mac = implode(':', str_split(strtoupper($mac), 2));
+        $this->activoForm['mac'] = substr($mac, 0, 17);
+    }
+
     public function nuevoActivo(): void
     {
         $this->resetActivoForm();
@@ -435,7 +442,7 @@ new #[Layout('layouts.app')] class extends Component {
 
         $this->activoForm['software_checkboxes'] = [];
         $this->activoForm['software_otros'] = '';
-        $opcionesSoftware = ['Office', 'AutoCAD', 'Anita', 'CorelDRAW', 'Chrome', 'Firefox', 'Adobe Reader', 'ZIP/RAR'];
+        $opcionesSoftware = ['OFIMATICA', 'SAFYC', 'SIGEDOC', 'Diseño CAD', 'Anita', 'CorelDRAW', 'Chrome', 'ZIP/RAR'];
         $otros = [];
         foreach ($activo['software_instalado'] ?? [] as $sw) {
             if (in_array($sw, $opcionesSoftware)) {
@@ -717,7 +724,7 @@ new #[Layout('layouts.app')] class extends Component {
                                 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
                         ],
                         2 => [
-                            'label' => 'Servidor',
+                            'label' => 'Servidor e Impresoras',
                             'icon' =>
                                 'M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01',
                         ],
@@ -1096,8 +1103,9 @@ new #[Layout('layouts.app')] class extends Component {
                                                 class="block text-xs font-medium text-slate-500 mb-1">Conexión</label>
                                             <select wire:model="impresoras.{{ $index }}.conexion"
                                                 class="w-full rounded-lg border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition">
-                                                <option value="red">Por Red / WiFi</option>
-                                                <option value="lan">Por LAN / Cable</option>
+                                                <option value="red">Por Red</option>
+                                                <option value="wifi">Wifi</option>
+                                                <option value="usb">USB</option>
                                             </select>
                                         </div>
                                         <div class="flex items-center gap-2 pt-5">
@@ -1671,12 +1679,27 @@ new #[Layout('layouts.app')] class extends Component {
                                 class="w-full rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition" />
                         </div>
                         <div><label class="block text-sm font-medium text-slate-700 mb-1">SO</label>
-                            <input wire:model="activoForm.so_tipo" type="text" placeholder="Windows, Ubuntu..."
-                                class="w-full rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition" />
+                            <select wire:model.live="activoForm.so_tipo"
+                                class="w-full rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition">
+                                <option value="">Seleccionar...</option>
+                                <option value="Windows">Windows</option>
+                                <option value="Linux">Linux</option>
+                            </select>
                         </div>
                         <div><label class="block text-sm font-medium text-slate-700 mb-1">Versión</label>
-                            <input wire:model="activoForm.so_version" type="text" placeholder="11, 22.04..."
-                                class="w-full rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition" />
+                            <select wire:model="activoForm.so_version"
+                                class="w-full rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition">
+                                <option value="">Seleccionar...</option>
+                                @if (($activoForm['so_tipo'] ?? '') === 'Windows')
+                                    <option value="7 pro">7 pro</option>
+                                    <option value="10 pro">10 pro</option>
+                                    <option value="11 pro">11 pro</option>
+                                @elseif(($activoForm['so_tipo'] ?? '') === 'Linux')
+                                    <option value="Suse">Suse</option>
+                                    <option value="Ubuntu">Ubuntu</option>
+                                    <option value="Otro">Otro</option>
+                                @endif
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -1707,7 +1730,6 @@ new #[Layout('layouts.app')] class extends Component {
                                     class="w-1/4 rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition">
                                     <option value="hdmi">HDMI</option>
                                     <option value="vga">VGA</option>
-                                    <option value="displayport">DisplayPort</option>
                                     <option value="otro">Otro</option>
                                 </select>
                                 <button type="button" wire:click="quitarMonitorActivo({{ $index }})"
@@ -1904,7 +1926,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </h4>
                     <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            @foreach (['Office', 'AutoCAD', 'Anita', 'CorelDRAW', 'Chrome', 'Firefox', 'Adobe Reader', 'ZIP/RAR'] as $sw)
+                            @foreach (['OFIMATICA', 'SAFYC', 'SIGEDOC', 'Diseño CAD'] as $sw)
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="checkbox" wire:model="activoForm.software_checkboxes"
                                         value="{{ $sw }}"
