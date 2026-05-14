@@ -33,6 +33,7 @@ new #[Layout('layouts.app')] class extends Component {
     public string $srv_funcion = '';
     public string $srv_so = '';
     public string $srv_so_version = '';
+    public string $srv_arquitectura = '';
     public string $srv_requerimientos = '';
     public string $srv_tipo_hw = '';
     public string $srv_cpu_ghz = '';
@@ -165,6 +166,7 @@ new #[Layout('layouts.app')] class extends Component {
             $this->srv_funcion = $srv->funcion ?? '';
             $this->srv_so = $srv->sistema_operativo ?? '';
             $this->srv_so_version = $srv->so_version ?? '';
+            $this->srv_arquitectura = $srv->arquitectura ?? '';
             $this->srv_requerimientos = $srv->requerimientos_especiales ?? '';
             $this->srv_tipo_hw = $srv->tipo_equipamiento ?? '';
             $this->srv_cpu_ghz = (string) ($srv->cpu_ghz ?? '');
@@ -333,6 +335,7 @@ new #[Layout('layouts.app')] class extends Component {
             'funcion' => $this->srv_funcion ?: null,
             'sistema_operativo' => $this->srv_so ?: null,
             'so_version' => $this->srv_so_version ?: null,
+            'arquitectura' => $this->srv_arquitectura ?: null,
             'requerimientos_especiales' => $this->srv_requerimientos ?: null,
             'tipo_equipamiento' => $this->srv_tipo_hw ?: null,
             'cpu_ghz' => $this->srv_cpu_ghz ?: null,
@@ -895,7 +898,9 @@ new #[Layout('layouts.app')] class extends Component {
                             <x-relevamiento.input label="Sistema Operativo" wire="srv_so"
                                 placeholder="Windows Server, Ubuntu..." />
                             <x-relevamiento.input label="Versión del SO" wire="srv_so_version"
-                                placeholder="2022, 22.04 LTS..." />
+                                placeholder="Ej: 11 pro, 22.04..." />
+                            <x-relevamiento.input label="Arquitectura del Servidor" wire="srv_arquitectura"
+                                placeholder="Ej: x64, ARM..." />
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Requerimientos
                                     especiales</label>
@@ -908,8 +913,8 @@ new #[Layout('layouts.app')] class extends Component {
                     {{-- Hardware --}}
                     <x-relevamiento.card title="Hardware" icon="cpu-chip">
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-5">
-                            <x-relevamiento.input label="Tipo de equipamiento" wire="srv_tipo_hw"
-                                placeholder="Tower, Rack, Blade..." />
+                            <x-relevamiento.input label="Modelo de CPU" wire="srv_tipo_hw"
+                                placeholder="Ej: Xeon E5, i7..." />
                             <x-relevamiento.input label="CPU (GHz)" wire="srv_cpu_ghz" type="number" step="0.1"
                                 placeholder="3.6" />
                             <div>
