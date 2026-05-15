@@ -387,6 +387,7 @@ new #[Layout('layouts.app')] class extends Component {
             'ram_gb' => '',
             'discos' => [],
             'placa_video' => '',
+            'motherboard' => '',
             'monitores' => [],
             'tiene_mouse' => false,
             'mouse_marca' => '',
@@ -656,14 +657,14 @@ new #[Layout('layouts.app')] class extends Component {
         }
 
         // Hoja 2: Activos
-        $activosHeader = ['Código Inv.', 'Tipo', 'Estado', 'Marca', 'Modelo CPU', 'GHz', 'RAM GB', 'RAM Tipo', 'Placa Video', 'Discos', 'Monitores', 'Mouse', 'Teclado', 'Software', 'Usuario'];
+        $activosHeader = ['Código Inv.', 'Tipo', 'Estado', 'Marca', 'Modelo CPU', 'GHz', 'RAM GB', 'RAM Tipo', 'Placa Video', 'Motherboard', 'Discos', 'Monitores', 'Mouse', 'Teclado', 'Software', 'Usuario'];
         $activosData = [$activosHeader];
         foreach ($r->activos as $a) {
             $discosStr = collect($a->almacenamiento_discos)->map(fn($d) => $d['tipo'] . ': ' . $d['capacidad'] . 'GB')->implode(' | ');
             $monitoresStr = collect($a->monitores)->map(fn($m) => $m['marca'] . ' ' . $m['pulgadas'] . '"')->implode(' | ');
             $softwareStr = implode(', ', $a->software_instalado ?? []);
 
-            $activosData[] = [$a->codigo_inventario, $a->tipo, $a->estado, $a->marca, $a->cpu_modelo, $a->cpu_ghz, $a->ram_gb, $a->ram_tipo, $a->placa_video, $discosStr, $monitoresStr, $a->tiene_mouse ? 'SÍ' : 'NO', $a->tiene_teclado ? 'SÍ' : 'NO', $softwareStr, $a->usuario_nombre . ' ' . $a->usuario_apellido];
+            $activosData[] = [$a->codigo_inventario, $a->tipo, $a->estado, $a->marca, $a->cpu_modelo, $a->cpu_ghz, $a->ram_gb, $a->ram_tipo, $a->placa_video, $a->motherboard, $discosStr, $monitoresStr, $a->tiene_mouse ? 'SÍ' : 'NO', $a->tiene_teclado ? 'SÍ' : 'NO', $softwareStr, $a->usuario_nombre . ' ' . $a->usuario_apellido];
         }
 
         $xlsx = \Shuchkin\SimpleXLSXGen::fromArray($general, 'General e Infra');
@@ -1619,6 +1620,14 @@ new #[Layout('layouts.app')] class extends Component {
                                 video</label>
                             <input wire:model="activoForm.placa_video" type="text"
                                 placeholder="Integrada / NVIDIA GTX..."
+                                class="w-full rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition" />
+                        </div>
+
+                        <div class="col-span-full"><label
+                                class="block text-sm font-medium text-slate-700 mb-1">Motherboard (Marca y
+                                Modelo)</label>
+                            <input wire:model="activoForm.motherboard" type="text"
+                                placeholder="ASUS Prime B450M-A / Gigabyte H610M..."
                                 class="w-full rounded-xl border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 transition" />
                         </div>
 
