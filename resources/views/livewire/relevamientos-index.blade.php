@@ -49,6 +49,16 @@ new #[Layout('layouts.app')] class extends Component {
             session()->flash('success', 'Relevamiento eliminado correctamente.');
         }
     }
+
+    public function exportarTodoExcel()
+    {
+        $fileName = 'relevamiento_completo_' . date('Ymd_His') . '.xlsx';
+        $path = storage_path('app/public/' . $fileName);
+
+        \App\Services\ExcelExportService::exportTo($path);
+
+        return response()->download($path, $fileName)->deleteFileAfterSend(true);
+    }
 };
 
 ?>
@@ -86,6 +96,13 @@ new #[Layout('layouts.app')] class extends Component {
                         placeholder="Buscar oficina o responsable..."
                         class="block w-full sm:w-64 pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition shadow-sm">
                 </div>
+                <button wire:click="exportarTodoExcel"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition shadow-sm whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Exportar Todo
+                </button>
                 <a href="{{ route('relevamiento.nuevo') }}"
                     class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition shadow-sm whitespace-nowrap">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
